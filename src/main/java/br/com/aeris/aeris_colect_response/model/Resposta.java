@@ -1,5 +1,7 @@
 package br.com.aeris.aeris_colect_response.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.core.util.Json;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -19,8 +21,8 @@ public class Resposta {
     @Column(nullable = false, updatable = false)
     private LocalDateTime criado_em;
 
-    @Column(nullable = false)
-    private Json resposta;
+    @Column(columnDefinition = "TEXT")
+    private String resposta;
 
     @Column(nullable = false)
     private Long pergunta_id;
@@ -33,4 +35,23 @@ public class Resposta {
 
     @Column(nullable = false)
     private LocalDateTime alterado_em;
+
+    @Transient
+    public JsonNode getJsonDataAsNode() {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readTree(resposta);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public void setJsonDataFromObject(Object obj) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            this.resposta = mapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            this.resposta = null;
+        }
+    }
 }
